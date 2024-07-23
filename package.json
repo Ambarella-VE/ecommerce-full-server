@@ -1,0 +1,7 @@
+{
+  "name": "ecommerce-full-server",
+  "packageManager": "yarn@4.3.1",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
