@@ -40,9 +40,20 @@ export default class ListManager {
     })
   }
 
-
-  //TODO - Add many
-  
+  addMany(items) {
+    return new Promise((resolve, reject) => {
+      const newItems = items.map((item) => ({
+        ...item,
+        id: crypto.randomBytes(16).toString('hex')
+      }));
+      this.items.push(...newItems);
+      this._saveToFile();
+      resolve({
+        statusCode:201,
+        response:newItems
+      });
+    });
+  }
 
   
   getAll() {
@@ -69,16 +80,72 @@ export default class ListManager {
   }
 
   //TODO - Delete one
+  delete(id) {
+    return new Promise((resolve, reject) => {
+      const index = this.items.findIndex((item) => item.id === id);
+      if (index === -1) {
+        reject(new Error(`Item with ID ${id} not found`));
+      } else {
+        this.items.splice(index, 1);
+        this._saveToFile();
+        resolve({
+          statusCode:200,
+          response:`Item with ID ${id} deleted`
+        });
+      }
+    });
+  }
 
+  deleteMany(ids) {
+    return new Promise((resolve, reject) => {
+      const deletedItems = [];
+      ids.forEach((id) => {
+        const index = this.items.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          deletedItems.push(this.items.splice(index, 1)[0]);
+        }
+      });
+      this._saveToFile();
+      resolve({
+        statusCode:200,
+        response:`Items with IDs ${ids.join(', ')} deleted`
+      });
+    });
+  }
 
+  update(item) {
+    return new Promise((resolve, reject) => {
+      const index = this.items.findIndex((i) => i.id === item.id);
+      if (index === -1) {
+        reject(new Error(`Item with ID ${item.id} not found`));
+      } else {
+        this.items[index] = item;
+        this._saveToFile();
+        resolve({
+          statusCode:200,
+          response:item
+        });
+      }
+    });
+  }
 
-  //TODO - Update one
-
-
-
-  //TODO - Update many
-
-
+  updateMany(items) {
+    return new Promise((resolve, reject) => {
+      const updatedItems = [];
+      items.forEach((item) => {
+        const index = this.items.findIndex((i) => i.id === item.id);
+        if (index !== -1) {
+          this.items[index] = item;
+          updatedItems.push(item);
+        }
+      });
+      this._saveToFile();
+      resolve({
+        statusCode:200,
+        response:updatedItems
+      });
+    });
+  }
 
 
   async _saveToFile() {
